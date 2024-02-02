@@ -1,8 +1,11 @@
 package frc.robot.Subsystem;
 
+import edu.wpi.first.wpilibj.XboxController;
+
 public class DriverController implements Subsystem 
 {
     private static DriverController instance = null;
+    private static XboxController xboxController;
 
     public static DriverController getInstance() 
     {
@@ -14,7 +17,10 @@ public class DriverController implements Subsystem
 
     public DriverController()
     {
-        
+        if (xboxController.getAButtonPressed())
+        {
+
+        }
     }
 
     @Override
