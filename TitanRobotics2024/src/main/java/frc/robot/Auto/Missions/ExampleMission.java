@@ -11,7 +11,7 @@ public class ExampleMission extends MissionBase
     protected void routine() throws AutoMissionEndedException 
     {
         // TODO Auto-generated method stub
-        runAction(new TurnDegreesAction(90));// may be milliseconds
+        runAction(new DriveForTimeAction(5, 1));// may be milliseconds
     }
 }
 

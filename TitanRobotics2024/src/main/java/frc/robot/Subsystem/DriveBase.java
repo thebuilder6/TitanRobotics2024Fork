@@ -9,7 +9,6 @@ public class DriveBase implements Subsystem
 
   private double leftPower;
   private double rightPower;
-
   private double leftEncoderValue;
   private double rightEncoderValue;
 
@@ -57,7 +56,6 @@ public class DriveBase implements Subsystem
   {
     this.leftPower = (forward - (0.35 * turn));
     this.rightPower = (forward + (0.35 * turn));
-  }
 
   public void log() 
   {
@@ -77,10 +75,11 @@ public class DriveBase implements Subsystem
     this.rightEncoderValue = this.rightEncoder.getDistance();
     this.leftEncoderRate = this.leftEncoder.getRate();
     this.rightEncoderRate = this.rightEncoder.getRate();
+
     this.frontLeftMotor.set(leftPower); 
     this.rearLeftMotor.set(leftPower);
     this.frontRightMotor.set(-rightPower);
     this.rearRightMotor.set(-rightPower);
-    
+
   }
 }
