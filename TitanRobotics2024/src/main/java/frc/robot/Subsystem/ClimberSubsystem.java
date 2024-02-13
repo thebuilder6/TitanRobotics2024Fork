@@ -1,13 +1,11 @@
 package frc.robot.Subsystem;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ClimberSubsystem implements Subsystem {
     // Constants for power and distance
-    private static final double RAISE_POWER = 0.5;
-    private static final double CLIMB_POWER = 0.5;
+
     private static final double TOP_DISTANCE = 40.0;
     private static final double BOTTOM_DISTANCE = 0.0;
     private static final double TOP_HOLD_THRESHOLD = 0;
@@ -25,6 +23,7 @@ public class ClimberSubsystem implements Subsystem {
     private double climberPower = 0.0;
     private double currentDistance = 0.0;
     private double currentVelocity = 0.0;
+    private String name = "Climber"; // Replace with your name
 
     // Singleton instances for left and right climbers
     private static ClimberSubsystem leftInstance = null;
@@ -37,16 +36,17 @@ public class ClimberSubsystem implements Subsystem {
     // Other properties and methods...
 
     // Private constructor for initializing motors and encoders
-    private ClimberSubsystem(ModifiedMotors motor, ModifiedEncoders encoder) {
+    private ClimberSubsystem(ModifiedMotors motor, ModifiedEncoders encoder, String name) {
         this.motor = motor;
         this.encoder = encoder;
+        this.name = name;
         // Add initialization logic here
     }
 
     // Get instance for left climber
     public static ClimberSubsystem getLeftInstance() {
         if (leftInstance == null) {
-            leftInstance = new ClimberSubsystem(null, null);
+            leftInstance = new ClimberSubsystem(null, null, "Left Climber");
         }
         return leftInstance;
     }
@@ -54,7 +54,8 @@ public class ClimberSubsystem implements Subsystem {
     // Get instance for right climber
     public static ClimberSubsystem getRightInstance() {
         if (rightInstance == null) {
-            rightInstance = new ClimberSubsystem(null, null);
+            rightInstance = new ClimberSubsystem(null, null, "Right Climber");
+
         }
         return rightInstance;
     }
@@ -116,10 +117,10 @@ public class ClimberSubsystem implements Subsystem {
     }
 
     public void log() {
-        SmartDashboard.putNumber("Climber Position", currentDistance);
-        SmartDashboard.putNumber("Climber Velocity", currentVelocity);
-        SmartDashboard.putNumber("Climber Power", climberPower);
-        SmartDashboard.putString("Climber State", climberState);
+        SmartDashboard.putNumber(name +": Climber Distance", currentDistance);
+        SmartDashboard.putNumber(name + ": Climber Velocity", currentVelocity);
+        SmartDashboard.putNumber(name + ": Climber Power", climberPower);
+        SmartDashboard.putString(name + ": Climber State", climberState);
     }
 
     public String getClimberState() {

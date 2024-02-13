@@ -7,21 +7,20 @@ package frc.robot;
 import java.util.Optional;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-
-import frc.robot.Data.ButtonMap;
-import frc.robot.Data.PortMap;
-import frc.robot.ExternalLibraries.LimelightHelpers;
+import frc.robot.Subsystem.AprilTagTargeting;
+import frc.robot.Subsystem.ClimberControl;
+import frc.robot.Subsystem.ClimberSubsystem;
 import frc.robot.Subsystem.Control;
 import frc.robot.Subsystem.DriveBase;
 import frc.robot.Subsystem.DriverController;
+import frc.robot.Subsystem.Limelight;
 //import frc.robot.Subsystem.Limelight;
 import frc.robot.Subsystem.OperatorController;
+import frc.robot.Subsystem.PoseEstimation;
+import frc.robot.Subsystem.SmartDashboardSubsystem;
 import frc.robot.Auto.AutoMissionExecutor;
 import frc.robot.Auto.AutoMissionChooser;
 import frc.robot.Auto.Missions.MissionBase;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import frc.robot.Teleop.Teleop;
 //import frc.robot.Subsystem.AprilTagTargeting;
 
 /**
@@ -37,21 +36,22 @@ public class Robot extends TimedRobot
 {
   private AutoMissionExecutor autoMissionExecutor = new AutoMissionExecutor();
   private AutoMissionChooser autoMissionChooser = new AutoMissionChooser();
-
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  private static Teleop teleop;
  // private static AprilTagTargeting aprilTagTargeting;
  // private static Limelight limelight;
  // private static LimelightHelpers limelightHelpers;
-  
-  private static ButtonMap buttonMap;
-  private static PortMap portMap;
 
+  private static ClimberSubsystem climberLeft;
+  private static ClimberSubsystem climberRight;
+  private static ClimberControl climberControl;
+  private static Limelight limelight;
+  private static AprilTagTargeting aprilTagTargeting;
   private static Control control;
   private static DriveBase driveBase;
   private static DriverController driverController;
   private static OperatorController operatorController;
-
+  private static SmartDashboardSubsystem smartDashboardSubsystem;
+  private static PoseEstimation poseEstimation;
+  private static MissionBase currentMission = null;
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -63,11 +63,15 @@ public class Robot extends TimedRobot
     control = Control.getInstance();
     driveBase = DriveBase.getInstance();
     driverController = DriverController.getInstance();
-    //limelight = Limelight.getInstance();
+    limelight = Limelight.getInstance();
     operatorController = OperatorController.getInstance();
-    //aprilTagTargeting = AprilTagTargeting.getInstance();
+    aprilTagTargeting = AprilTagTargeting.getInstance();
     autoMissionChooser.updateMissionCreator();
-   
+    climberControl = ClimberControl.getInstance();
+    climberLeft = ClimberSubsystem.getLeftInstance();
+    climberRight = ClimberSubsystem.getRightInstance();
+    smartDashboardSubsystem = SmartDashboardSubsystem.getInstance();
+    poseEstimation = PoseEstimation.getInstance();
   }
 
   /**
@@ -82,10 +86,13 @@ public class Robot extends TimedRobot
     control.update();
     driveBase.update();
     driverController.update();
-    //limelight.update();
-    //modifiedMotors.update();
+    limelight.update();
     operatorController.update();
-    //aprilTagTargeting.update();
+    poseEstimation.update();
+    climberLeft.update();
+    climberRight.update();
+    climberControl.update();
+    smartDashboardSubsystem.update();
     autoMissionChooser.outputToSmartDashboard();
    
     //System.out.println(LimelightHelpers.getFiducialID(""));

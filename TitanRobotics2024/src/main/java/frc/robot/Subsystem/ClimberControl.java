@@ -44,6 +44,12 @@ public class ClimberControl implements Subsystem
         rightClimber.hold();
     }
 
+    public void log()
+    {
+        leftClimber.log();
+        rightClimber.log();
+    }
+
     public void manualControl(double leftSpeed, double rightSpeed)
     {
         double threshold = 0.1;
@@ -60,6 +66,7 @@ public class ClimberControl implements Subsystem
             rightClimber.hold();
         }
     }
+
 
     public void update()
     {

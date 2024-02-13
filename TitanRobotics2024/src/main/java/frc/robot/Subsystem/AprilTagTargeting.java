@@ -1,10 +1,8 @@
 package frc.robot.Subsystem;
 
-import frc.robot.ExternalLibraries.LimelightHelpers;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Subsystem.Limelight;
-import frc.robot.Subsystem.DriveBase;
 
 public class AprilTagTargeting implements Subsystem // This class contains functions for finding and
                                                     // locking onto elements of the field using
@@ -22,6 +20,9 @@ public class AprilTagTargeting implements Subsystem // This class contains funct
 
     private PIDController aprilTagXPID = new PIDController(1, 0, 0);
     private PIDController aprilTagAPID = new PIDController(1, 0, 0);
+    
+    Limelight limelight;
+    DriveBase driveBase;
 
     String alliance = "red";
     String target = "ALL";
@@ -31,25 +32,31 @@ public class AprilTagTargeting implements Subsystem // This class contains funct
         this.alliance = alliance;
     }
 
-    Limelight limelight;
-    DriveBase driveBase;
 
     public AprilTagTargeting() {
         limelight = Limelight.getInstance();
-        driveBase = DriveBase.getInstance();
     }
 
     public void setTarget(String target) {
         this.target = target;
     }
 
-    public void runAprilTagXPID() {
+
+
+    public double runAprilTagXPID() {
         if (target.equals("ALL") || target.equals(findTagName())) {
-            driveBase.drive(0, (aprilTagXPID.calculate(limelight.x, 0)) / 25);
+            return(aprilTagXPID.calculate(limelight.x, 0) / 25);
+        }
+        else {
+            return 0;
         }
         
     }
-
+    /**
+     * Runs the AprilTag X PID control and returns the result.
+     *
+     * @return a turn value for the robot
+     */
     public void runAprilTagZPID() {
         driveBase.drive((aprilTagAPID.calculate(limelight.z, 0)) / 25,0 ); // zero is a placeholder
     }

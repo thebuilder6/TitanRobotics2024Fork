@@ -56,6 +56,16 @@ public class DriveBase implements Subsystem {
     this.rightPower = (forward + (0.35 * turn));
   }
   
+  public double getLeftEncoderDistance() 
+  {
+    return this.leftEncoderValue;
+  }
+
+  public double getRightEncoderDistance() 
+  {
+    return this.rightEncoderValue;
+  }
+
   public void log() 
   {
     SmartDashboard.putNumber("Left Encoder", leftEncoderValue);
