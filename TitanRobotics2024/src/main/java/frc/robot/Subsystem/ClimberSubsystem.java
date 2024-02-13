@@ -40,7 +40,6 @@ public class ClimberSubsystem implements Subsystem {
     private ClimberSubsystem(ModifiedMotors motor, ModifiedEncoders encoder) {
         this.motor = motor;
         this.encoder = encoder;
-
         // Add initialization logic here
     }
 

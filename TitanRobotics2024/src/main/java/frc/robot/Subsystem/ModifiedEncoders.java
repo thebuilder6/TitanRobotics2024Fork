@@ -11,22 +11,32 @@ public class ModifiedEncoders implements Subsystem {
     private int channelB;
 
     
+    /**
+     * Constructor for ModifiedEncoders class.
+     * 
+     * @param channelA the channel A number
+     * @param channelB the channel B number
+     * @param encodertype the type of encoder to initialize
+     */
     public ModifiedEncoders(int channelA, int channelB, String encodertype){
-
+        // Initialize a temporary encoder
         Encoder temporaryEncoder = null;
+        
+        // Switch based on the encoder type
         switch (encodertype) 
         {
             case "E4TEncoder":
-            
+                // Initialize E4T encoder
                 temporaryEncoder = initializeE4T(channelA, channelB);
                 break;
-           
+        
             default:
+                // Print error message if encoder type is not recognized
                 System.err.println("Error: encoders not activated");
         }
+        
+        // Set the encoder to the temporary encoder
         encoder = temporaryEncoder;
-
-
     }
 
     public ModifiedEncoders(int portNumber, String encodertype){

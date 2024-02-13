@@ -3,14 +3,7 @@ package frc.robot.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Data.PortMap;
 
-public class DriveBase implements Subsystem 
-{
-
-
-  private double leftPower;
-  private double rightPower;
-  private double leftEncoderValue;
-  private double rightEncoderValue;
+public class DriveBase implements Subsystem {
 
   private ModifiedMotors rearLeftMotor;
   private ModifiedMotors frontRightMotor;
@@ -18,8 +11,13 @@ public class DriveBase implements Subsystem
   private ModifiedMotors frontLeftMotor;
   private ModifiedEncoders leftEncoder;
   private ModifiedEncoders rightEncoder;
+  private double leftEncoderValue;
+  private double rightEncoderValue;  
   private double leftEncoderRate;
   private double rightEncoderRate;
+  private double leftPower;
+  private double rightPower;
+
 
   private static DriveBase instance = null;
 
@@ -56,7 +54,8 @@ public class DriveBase implements Subsystem
   {
     this.leftPower = (forward - (0.35 * turn));
     this.rightPower = (forward + (0.35 * turn));
-
+  }
+  
   public void log() 
   {
     SmartDashboard.putNumber("Left Encoder", leftEncoderValue);
