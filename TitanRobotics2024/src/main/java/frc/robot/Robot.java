@@ -83,15 +83,15 @@ public class Robot extends TimedRobot
   @Override
   public void robotPeriodic() 
   {
+    poseEstimation.update();
+    driverController.update();
+    operatorController.update();
+    limelight.update();
     control.update();
     driveBase.update();
-    driverController.update();
-    limelight.update();
-    operatorController.update();
-    poseEstimation.update();
+    climberControl.update();
     climberLeft.update();
     climberRight.update();
-    climberControl.update();
     smartDashboardSubsystem.update();
     autoMissionChooser.outputToSmartDashboard();
    

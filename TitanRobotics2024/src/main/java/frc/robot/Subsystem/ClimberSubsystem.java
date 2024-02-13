@@ -16,7 +16,7 @@ public class ClimberSubsystem implements Subsystem {
     private PIDController velocityPID = new PIDController(0.01, 0.0, 0.0);
 
     // Current climber state and related variables
-    private String climberState = null;
+    private String climberState = "Stopped";
     private double rotationTarget;
     private double holdPosition = 0.0;
     private double climberVelocity = 0.0;
@@ -32,7 +32,7 @@ public class ClimberSubsystem implements Subsystem {
     // Motors and encoders for left and right climbers
     private ModifiedMotors motor;
     private ModifiedEncoders encoder;
-
+    private SmartDashboardSubsystem smartDashboardSubsystem;
     // Other properties and methods...
 
     // Private constructor for initializing motors and encoders
@@ -40,6 +40,7 @@ public class ClimberSubsystem implements Subsystem {
         this.motor = motor;
         this.encoder = encoder;
         this.name = name;
+        smartDashboardSubsystem = SmartDashboardSubsystem.getInstance();
         // Add initialization logic here
     }
 
@@ -117,7 +118,7 @@ public class ClimberSubsystem implements Subsystem {
     }
 
     public void log() {
-        SmartDashboard.putNumber(name +": Climber Distance", currentDistance);
+        SmartDashboard.putNumber(name + ": Climber Distance", currentDistance);
         SmartDashboard.putNumber(name + ": Climber Velocity", currentVelocity);
         SmartDashboard.putNumber(name + ": Climber Power", climberPower);
         SmartDashboard.putString(name + ": Climber State", climberState);
@@ -136,9 +137,13 @@ public class ClimberSubsystem implements Subsystem {
 
     // Update the climber based on the processed state
     public void update() {
-        currentDistance = encoder.getDistance();
-        currentVelocity = encoder.getRate();
-        processState();
-        motor.set(climberPower);
+        if (encoder != null && motor != null) {
+            currentDistance = encoder.getDistance();
+            currentVelocity = encoder.getRate();
+            processState();
+            motor.set(climberPower);
+        } else {
+            smartDashboardSubsystem.error("Climber not initialized");
+        }
     }
 }

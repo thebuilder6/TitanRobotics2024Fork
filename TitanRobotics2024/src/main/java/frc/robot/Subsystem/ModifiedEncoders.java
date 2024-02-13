@@ -74,13 +74,28 @@ public class ModifiedEncoders implements Subsystem {
     }
 
     public double getRate(){
-
-        return encoder.getRate();
+        try
+        {
+            return encoder.getRate();
+        }
+        catch (Exception e)
+        {   
+            System.err.println("Error: getRate");
+            return 0;
+        }
     }
 
     public double getDistance(){
-
-        return encoder.getDistance();
+        try
+        {
+            return encoder.getDistance();
+        }
+        catch (Exception e)
+        {   
+            System.err.println("Error: getDistance");
+            return 0;
+        }
+       
     }
 
     @Override
