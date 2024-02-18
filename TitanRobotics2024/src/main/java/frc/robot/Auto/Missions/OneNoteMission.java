@@ -4,19 +4,14 @@ import frc.robot.Auto.AutoMissionEndedException;
 import frc.robot.Auto.Actions.DriveForTimeAction;
 import frc.robot.Auto.Actions.ParallelAction;
 import frc.robot.Auto.Actions.TurnDegreesAction;
+import frc.robot.Auto.Actions.SeriesAction;
 
-public class ExampleMission extends MissionBase 
+public class OneNoteMission extends MissionBase 
 {
     @Override
     protected void routine() throws AutoMissionEndedException 
     {
         // TODO Auto-generated method stub
-        runAction(new TurnDegreesAction(90));// may be milliseconds
+        runAction(new DriveForTimeAction(3, 0.5));// may be milliseconds
     }
 }
-
-
-
-
-
-

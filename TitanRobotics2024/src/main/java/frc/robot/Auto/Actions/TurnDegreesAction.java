@@ -4,10 +4,11 @@ import frc.robot.Subsystem.DriveBase;
 import frc.robot.Subsystem.Gyro;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.SPI;
 
 public class TurnDegreesAction implements Actions 
 {
-    private double initialDegrees = 0;
+    private double currentDegrees = 0;
     private double desiredDegrees;
     private double targetDegrees;
     private double turn;
@@ -17,7 +18,7 @@ public class TurnDegreesAction implements Actions
     private Gyro gyro;
 
     private PIDController PID;
-    private double kp = 0.01;
+    private double kp = 0.2;
     private double ki = 0.0;
     private double kd = 0.0;
 
@@ -28,24 +29,30 @@ public class TurnDegreesAction implements Actions
 
         desiredDegrees = degrees;
         PID = new PIDController(kp, ki, kd);
-        //PID.enableContinuousInput(0, 360);
+        PID.enableContinuousInput(-180, 180);
+        
+
     }
 
     @Override
     public void start()
     {
-        initialDegrees = gyro.getAngleDegrees();
-        targetDegrees = (initialDegrees + desiredDegrees);
+        currentDegrees = gyro.getAngleDegrees();
+        targetDegrees = (currentDegrees + desiredDegrees);
         PID.setSetpoint(targetDegrees);
         PID.setTolerance(toleranceDegrees);
+       // System.out.println(targetDegrees);
     }
+
+ 
 
     @Override
     public void update()
     {
-        turn = PID.calculate(gyro.getAngleDegrees());
-        driveBase.drive(0, -turn);
-        System.out.println(gyro.getAngleDegrees());
+        turn = PID.calculate(gyro.getAngleDegrees()) / 180;
+        driveBase.drive(0, turn);
+        //System.out.println(gyro.getAngleDegrees());
+        //System.out.println(turn);
     }
 
     @Override

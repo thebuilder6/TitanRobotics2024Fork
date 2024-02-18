@@ -5,97 +5,87 @@
 package frc.robot;
 
 import java.util.Optional;
-
 import edu.wpi.first.wpilibj.TimedRobot;
 
-import frc.robot.Data.ButtonMap;
-import frc.robot.Data.PortMap;
-import frc.robot.ExternalLibraries.LimelightHelpers;
+import frc.robot.Subsystem.SmartDashboardSubsystem;
+import frc.robot.Subsystem.*;
+
+import frc.robot.Subsystem.Limelight;
+
 import frc.robot.Subsystem.Control;
 import frc.robot.Subsystem.DriveBase;
 import frc.robot.Subsystem.DriverController;
-//import frc.robot.Subsystem.Limelight;
+
 import frc.robot.Subsystem.OperatorController;
+import frc.robot.Subsystem.AprilTagTargeting;
+import frc.robot.Subsystem.ClimberControl;
 import frc.robot.Auto.AutoMissionExecutor;
 import frc.robot.Auto.AutoMissionChooser;
 import frc.robot.Auto.Missions.MissionBase;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import frc.robot.Teleop.Teleop;
-//import frc.robot.Subsystem.AprilTagTargeting;
+import frc.robot.Subsystem.PositionEstimation;
+import frc.robot.Subsystem.NoteTargeting;
 
-/**
- * The VM is configured to automatically run this class, and to call the
- * functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the
- * name of this class or
- * the package after creating this project, you must also update the
- * build.gradle file in the
- * project.
- */
-public class Robot extends TimedRobot 
+public class Robot extends TimedRobot
 {
   private AutoMissionExecutor autoMissionExecutor = new AutoMissionExecutor();
   private AutoMissionChooser autoMissionChooser = new AutoMissionChooser();
 
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  private static Teleop teleop;
- // private static AprilTagTargeting aprilTagTargeting;
- // private static Limelight limelight;
- // private static LimelightHelpers limelightHelpers;
-  
-  private static ButtonMap buttonMap;
-  private static PortMap portMap;
-
+  private static AprilTagTargeting aprilTagTargeting;
   private static Control control;
   private static DriveBase driveBase;
   private static DriverController driverController;
+  private static ClimberControl climberControl;
+  private static ClimberSubsystem climberRight;
+  private static ClimberSubsystem climberLeft;
+  private static Limelight limelight;
+  private static NoteTargeting noteTargeting;
   private static OperatorController operatorController;
+  private static PositionEstimation positionEstimation;
+  private static SmartDashboardSubsystem smartDashboardSubsystem;
 
-  /**
-   * This function is run when the robot is first started up and should be used
-   * for any
-   * initialization code.
-   */
   @Override
-  public void robotInit() 
+  public void robotInit()
   {
+    autoMissionChooser.updateMissionCreator();
+
+    //aprilTagTargeting = AprilTagTargeting.getInstance();
     control = Control.getInstance();
+    //climberControl = ClimberControl.getInstance();
+    //climberLeft = ClimberSubsystem.getLeftInstance();
+    //climberRight = ClimberSubsystem.getRightInstance();
     driveBase = DriveBase.getInstance();
     driverController = DriverController.getInstance();
     //limelight = Limelight.getInstance();
+    //noteTargeting = NoteTargeting.getInstance();
     operatorController = OperatorController.getInstance();
-    //aprilTagTargeting = AprilTagTargeting.getInstance();
-    autoMissionChooser.updateMissionCreator();
-   
+    positionEstimation = PositionEstimation.getInstance();
+    smartDashboardSubsystem = SmartDashboardSubsystem.getInstance();
+
   }
 
-  /**
-   * This function is called every 20 ms, no matter the mission. Use this for items
-   * like diagnostics that you want ran during disabled, autonomous, teleoperated and test.
-   * <p>
-   * This runs after the mission specific periodic functions, but before LiveWindow and SmartDashboard integrated updating.
-   */
   @Override
-  public void robotPeriodic() 
+  public void robotPeriodic()
   {
+    autoMissionChooser.outputToSmartDashboard();
+
+    //aprilTagTargeting.update();
     control.update();
     driveBase.update();
     driverController.update();
+    //climberControl.update();
+    //climberLeft.update();
+    //climberRight.update();
+    positionEstimation.update();
     //limelight.update();
-    //modifiedMotors.update();
+    //noteTargeting.update();
     operatorController.update();
-    //aprilTagTargeting.update();
-    autoMissionChooser.outputToSmartDashboard();
-   
-    //System.out.println(LimelightHelpers.getFiducialID(""));
-    //System.out.println(LimelightHelpers.getTargetPose3d_CameraSpace(""));
+    smartDashboardSubsystem.update();
   }
 
   @Override
-  public void autonomousInit() 
+  public void autonomousInit()
   {
-    if (autoMissionChooser.getAutoMission().isPresent()) 
+    if (autoMissionChooser.getAutoMission().isPresent())
     {
       autoMissionChooser.getAutoMission().get().setStartPose();
     }
@@ -104,29 +94,29 @@ public class Robot extends TimedRobot
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() 
+  public void autonomousPeriodic()
   {
   }
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() 
+  public void teleopInit()
   {
   }
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() 
+  public void teleopPeriodic()
   {
     control.teleopControl();
   }
 
   /** This function is called once when the robot is disabled. */
   @Override
-  public void disabledInit() 
+  public void disabledInit()
   {
     // Reset all auto mission states.
-    if (autoMissionExecutor != null) 
+    if (autoMissionExecutor != null)
     {
       autoMissionExecutor.stop();
     }
@@ -136,12 +126,12 @@ public class Robot extends TimedRobot
 
   /** This function is called periodically when disabled. */
   @Override
-  public void disabledPeriodic() 
+  public void disabledPeriodic()
   {
     autoMissionChooser.outputToSmartDashboard();
     autoMissionChooser.updateMissionCreator();
     Optional<MissionBase> autoMission = autoMissionChooser.getAutoMission();
-    if (autoMission.isPresent() && autoMission.get() != autoMissionExecutor.getAutoMission()) 
+    if (autoMission.isPresent() && autoMission.get() != autoMissionExecutor.getAutoMission())
     {
       System.out.println("Set auto mission to: " + autoMission.get().getClass().toString());
       autoMissionExecutor.setAutoMission(autoMission.get());
@@ -150,25 +140,25 @@ public class Robot extends TimedRobot
 
   /** This function is called once when test mode is enabled. */
   @Override
-  public void testInit() 
+  public void testInit()
   {
   }
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() 
+  public void testPeriodic()
   {
   }
 
   /** This function is called once when the robot is first started up. */
   @Override
-  public void simulationInit() 
+  public void simulationInit()
   {
   }
 
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() 
+  public void simulationPeriodic()
   {
   }
 }

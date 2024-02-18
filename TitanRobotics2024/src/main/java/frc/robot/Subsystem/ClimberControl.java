@@ -2,10 +2,9 @@ package frc.robot.Subsystem;
 
 public class ClimberControl implements Subsystem
 {
-
     private static ClimberControl instance = null;
-    private static ClimberSubsystem leftClimber = ClimberSubsystem.getLeftInstance();
-    private static ClimberSubsystem rightClimber = ClimberSubsystem.getRightInstance();
+    private static ClimberSubsystem leftClimber;
+    private static ClimberSubsystem rightClimber;
 
     public static ClimberControl getInstance() {
         if (instance == null) {
@@ -44,9 +43,15 @@ public class ClimberControl implements Subsystem
         rightClimber.hold();
     }
 
+    public void log()
+    {
+        leftClimber.log();
+        rightClimber.log();
+    }
+
     public void manualControl(double leftSpeed, double rightSpeed)
     {
-        double threshold = 0.1;
+        double threshold = 0.15;
         
         if (Math.abs(leftSpeed) >= threshold){
             leftClimber.manualControl(leftSpeed);
@@ -60,6 +65,7 @@ public class ClimberControl implements Subsystem
             rightClimber.hold();
         }
     }
+
 
     public void update()
     {
