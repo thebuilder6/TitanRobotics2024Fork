@@ -50,9 +50,9 @@ public class Robot extends TimedRobot
 
     //aprilTagTargeting = AprilTagTargeting.getInstance();
     control = Control.getInstance();
-    //climberControl = ClimberControl.getInstance();
-    //climberLeft = ClimberSubsystem.getLeftInstance();
-    //climberRight = ClimberSubsystem.getRightInstance();
+    climberControl = ClimberControl.getInstance();
+    climberLeft = ClimberSubsystem.getLeftInstance();
+    climberRight = ClimberSubsystem.getRightInstance();
     driveBase = DriveBase.getInstance();
     driverController = DriverController.getInstance();
     //limelight = Limelight.getInstance();
@@ -72,9 +72,9 @@ public class Robot extends TimedRobot
     control.update();
     driveBase.update();
     driverController.update();
-    //climberControl.update();
-    //climberLeft.update();
-    //climberRight.update();
+    climberControl.update();
+    climberLeft.update();
+    climberRight.update();
     positionEstimation.update();
     //limelight.update();
     //noteTargeting.update();

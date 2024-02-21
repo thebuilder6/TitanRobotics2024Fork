@@ -114,8 +114,8 @@ public class ModifiedMotors implements Subsystem
         {
             SmartDashboard.putNumber("Error: Motor Not Set", this.portNumber);
         }
-
     }
+
 
     @Override
     public void update()

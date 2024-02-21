@@ -35,7 +35,7 @@ public class Control implements Subsystem
         driveBase = DriveBase.getInstance();
         driverController = DriverController.getInstance();
         //aprilTagTargeting = AprilTagTargeting.getInstance();
-        //climberControl = ClimberControl.getInstance();
+        climberControl = ClimberControl.getInstance();
         operatorController = OperatorController.getInstance();
         //intake = Intake.getInstance();
         //limelight = Limelight.getInstance();
@@ -110,7 +110,7 @@ public class Control implements Subsystem
 
         driveBase.drive(forward, turn);
 
-        /* 
+        
         if (operatorController.getButton(ButtonMap.XboxY))
         {
             climberControl.top();
@@ -127,7 +127,7 @@ public class Control implements Subsystem
         }
         
         climberControl.manualControl(operatorController.getStick(ButtonMap.XboxLEFTSTICKY), operatorController.getStick(ButtonMap.XboxRIGHTSTICKY));
-        */
+        
         /* 
         if (operatorController.getButton(ButtonMap.XboxRIGHTBumper))
         {

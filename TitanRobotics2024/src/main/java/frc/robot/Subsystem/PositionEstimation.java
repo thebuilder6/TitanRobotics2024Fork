@@ -11,7 +11,7 @@ public class PositionEstimation implements Subsystem
 {
 
     private static final double WHEEL_BASE_WIDTH = 27.0;
-    DriveBase driveBase;
+    private DriveBase driveBase;
     private Gyro imu;
     DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(WHEEL_BASE_WIDTH));
 
