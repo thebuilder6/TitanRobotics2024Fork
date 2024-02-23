@@ -22,7 +22,7 @@ public class ModifiedEncoders implements Subsystem
                 encoder = initializeE4T(channelA, channelB);
                 break;
             case "QuadratureEncoder":
-                encoder = new Encoder(channelA, channelB);
+                encoder = initializeQuadrature(channelA, channelB);
                 break;
             default:
                 System.err.println("Error: encoders not activated");
@@ -53,6 +53,11 @@ public class ModifiedEncoders implements Subsystem
 
     private Encoder initializeE4T(int channelA, int channelB)
     {
+        if (channelA < 0 || channelB < 0)
+        {
+            System.err.println("Encoder not activated " + channelA + " " + channelB);
+            return null;
+        }
         try
         {
             encoder = new Encoder(channelA, channelB);
@@ -67,15 +72,44 @@ public class ModifiedEncoders implements Subsystem
 
     }
 
+    private Encoder initializeQuadrature(int channelA, int channelB)
+    {
+        if (channelA < 0 || channelB < 0)
+        {
+            System.err.println("Encoder not activated " + channelA + " " + channelB);
+            return null;
+        }
+        try
+        {
+            encoder = new Encoder(channelA, channelB);
+            return encoder;
+        }
+        catch (Exception e)
+        {
+            System.err.println("Error: Encoder Not Activated " + channelA + " " + channelB);
+            return null;
+        }
+    }
     public double getRate()
     {
-
+       if(encoder != null) {
         return encoder.getRate();// * ratio;
+       }
+       else{
+        return 0;
+       }
     }
 
     public double getDistance()
     {
-        return encoder.getDistance();
+        if(encoder != null) 
+        {
+            return encoder.getDistance();
+        }
+       else
+       {
+            return 0;
+       }
     }
 
     @Override

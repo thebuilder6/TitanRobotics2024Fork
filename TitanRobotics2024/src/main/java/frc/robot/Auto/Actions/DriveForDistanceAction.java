@@ -1,29 +1,24 @@
 package frc.robot.Auto.Actions;
 
 import frc.robot.Subsystem.DriveBase;
-import frc.robot.Subsystem.Gyro;
 import frc.robot.Subsystem.PositionEstimation;
 
-import javax.swing.text.Position;
-
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
-public class TurnDegreesAction implements Actions 
+public class DriveForDistanceAction implements Actions 
 {
     Timer timer;
-    private double currentDegrees = 0;
-    private double desiredDegrees;
-    private double targetDegrees;
-    private double turn;
-    private double toleranceDegrees = 0.0025;
+    private double currentDistance;
+    private double desiredDistance;
+    private double targetDistance;
+    private double forward;
+    private double toleranceDistance = 0.0025;
     private double endAfterSeconds;
 
     private DriveBase driveBase;
-    private Gyro gyro;
     private PositionEstimation position;
 
     private PIDController PID;
@@ -31,17 +26,14 @@ public class TurnDegreesAction implements Actions
     private double ki = 0.011;
     private double kd = 0.002;
 
-    public TurnDegreesAction(double degrees, double seconds)
+    public DriveForDistanceAction(double distance, double endingSeconds)
     {
         driveBase = DriveBase.getInstance();
         //gyro = Gyro.getInstance();
         position = PositionEstimation.getInstance();
-        endAfterSeconds = seconds;
-        desiredDegrees = degrees;
+        endAfterSeconds = endingSeconds;
+        desiredDistance = distance;
         PID = new PIDController(kp, ki, kd);
-        PID.enableContinuousInput(-180, 180);
-        
-
     }
 
     @Override
@@ -50,12 +42,12 @@ public class TurnDegreesAction implements Actions
         timer = new Timer();
         timer.start();
         //currentDegrees = gyro.getAngleDegrees();
-        currentDegrees = position.getAngle();
-        targetDegrees = (currentDegrees + desiredDegrees);
-        PID.setSetpoint(targetDegrees);
-        PID.setTolerance(toleranceDegrees);
+        currentDistance = position.getDistance();
+        targetDistance = (currentDistance + desiredDistance);
+        PID.setSetpoint(targetDistance);
+        PID.setTolerance(toleranceDistance);
        // System.out.println(targetDegrees);
-       SmartDashboard.putString( "Current Action", "TurnDegreesAction Started");
+       SmartDashboard.putString( "Current Action", "DriveForDistanceAction Started");
     }
 
  
@@ -63,11 +55,13 @@ public class TurnDegreesAction implements Actions
     @Override
     public void update()
     {
-        turn = PID.calculate(position.getAngle());
-        driveBase.drive(0, turn);
+        
+        forward = PID.calculate(position.getDistance());
+        driveBase.drive(forward, 0);
         //System.out.println(gyro.getAngleDegrees());
-        SmartDashboard.putNumber("targetDegrees", targetDegrees);
-        SmartDashboard.putNumber("turn", turn);
+        SmartDashboard.putNumber("targetDistance", targetDistance);
+        SmartDashboard.putNumber("currentDistance", currentDistance);
+        SmartDashboard.putNumber("forward", forward);
         //System.out.println(turn);
         
     }
@@ -77,7 +71,7 @@ public class TurnDegreesAction implements Actions
     {
         if (timer.get() >= endAfterSeconds)
         {
-            System.out.println("ended properly");
+            System.out.println("drive for distance ended properly");
             return true;
             
         }
@@ -91,7 +85,8 @@ public class TurnDegreesAction implements Actions
     @Override
     public void done()
     {
-        SmartDashboard.putString( "Current Action", "TurnDegreesAction Ended");
+        SmartDashboard.putString( "Current Action", "DriveForDistanceAction Ended");
         driveBase.drive(0, 0);
     }
 }
+

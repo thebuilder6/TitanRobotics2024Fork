@@ -7,13 +7,13 @@ public class Control implements Subsystem
     private static Control instance = null;
 
     private DriveBase driveBase;
-    private static DriverController driverController;
-    private AprilTagTargeting aprilTagTargeting;
-    private ClimberControl climberControl;
+    private DriverController driverController;
     private OperatorController operatorController;
+    private Targeting targeting;
+    private ClimberControl climberControl;
     private Intake intake;
     private Limelight limelight;
-    private NoteTargeting noteTargeting;
+    private Ramp ramp;
 
     private double rampspeed;
     private double forward;
@@ -34,67 +34,74 @@ public class Control implements Subsystem
     {
         driveBase = DriveBase.getInstance();
         driverController = DriverController.getInstance();
-        //aprilTagTargeting = AprilTagTargeting.getInstance();
-        climberControl = ClimberControl.getInstance();
         operatorController = OperatorController.getInstance();
-        //intake = Intake.getInstance();
-        //limelight = Limelight.getInstance();
-        //noteTargeting = NoteTargeting.getInstance();
+        targeting = Targeting.getInstance();
+        limelight = Limelight.getInstance();
+        intake = Intake.getInstance();
+        climberControl = ClimberControl.getInstance();
+        ramp = Ramp.getInstance();
     }
 
     public void teleopControl()
     {
         forward = -driverController.getStick(ButtonMap.XboxLEFTSTICKY) * (Math.abs(driverController.getStick(ButtonMap.XboxLEFTSTICKY)));
-        turn = 0.40 * -driverController.getStick(ButtonMap.XboxRIGHTSTICKX);
-        /* 
-        aprilTagTargeting.setAlliance("blue"); // Change depending on alliance
+        turn = -driverController.getStick(ButtonMap.XboxRIGHTSTICKX);
+
+        //limelightControl();
+
+        driveBase.drive(forward, turn);
+
+        climberControl();
+        manipulatorControl();
+    }
+
+    private void limelightControl()
+    {
+        targeting.setAlliance("blue"); // Change depending on alliance
                                                // for upcoming match.
                                                // Failure to change this will
                                                // cause you to target the
                                                // wrong AprilTags when using
                                                // lock on buttons.
-        
         if (driverController.debounceSTART())
         {
             System.out.println("pressed");
-            if (limelight.pipeline == 0)
+            if (limelight.getPipeline() == 0)
             {
                 limelight.setPipeline(1);
-                System.out.println("Switched1");
             }
             else
             {
                 limelight.setPipeline(0);
-                System.out.println("Switched0");
             }
         }
         
-        if (limelight.pipeline == 0)
+        if (limelight.getPipeline() == 0)
         {
             if (driverController.getButton(ButtonMap.XboxX))
             {
-                aprilTagTargeting.setTarget("Amp");
-                turn = aprilTagTargeting.aprilTaglockOn();
+                targeting.setTarget("Amp");
+                turn = targeting.aprilTaglockOn();
                 System.out.println("Locking on to Amp");
             }
         
             if (driverController.getButton(ButtonMap.XboxA))
             {
-                aprilTagTargeting.setTarget("Source");
-                turn = aprilTagTargeting.aprilTaglockOn();
+                targeting.setTarget("Source");
+                turn = targeting.aprilTaglockOn();
                 System.out.println("Locking on to Source");
             }
         
             if (driverController.getButton(ButtonMap.XboxB))
             {
-                aprilTagTargeting.setTarget("Stage");
-                turn = aprilTagTargeting.aprilTaglockOn();
+                targeting.setTarget("Stage");
+                turn = targeting.aprilTaglockOn();
                 System.out.println("Locking on to Stage");
             }
         
             else
             {
-                aprilTagTargeting.setTarget("none");
+                targeting.setTarget("none");
             }
         }
         
@@ -102,64 +109,67 @@ public class Control implements Subsystem
         {
             if (driverController.getButton(ButtonMap.XboxY))
             {
-                turn = noteTargeting.noteLockOn();
+                turn = targeting.otherLockOn();
                 System.out.println("Locking On to Note");
             }
         } 
-        */
+        
+        if(driverController.getButton(ButtonMap.XboxRIGHTBumper))
+        {
+            forward = targeting.follow();
+            turn = targeting.otherLockOn();
+        }
+    }
 
-        driveBase.drive(forward, turn);
-
+    private void climberControl(){
         
-        if (operatorController.getButton(ButtonMap.XboxY))
-        {
-            climberControl.top();
-        }
+        // if (operatorController.getButton(ButtonMap.XboxY))
+        // {
+        //     climberControl.top();
+        // }
         
-        if (operatorController.getButton(ButtonMap.XboxX))
-        {
-            climberControl.bottom();
-        }
+        // if (operatorController.getButton(ButtonMap.XboxX))
+        // {
+        //     climberControl.bottom();
+        // }
         
-        if (operatorController.getButton(ButtonMap.XboxB))
-        {
-            climberControl.stop();
-        }
+        // if (operatorController.getButton(ButtonMap.XboxB))
+        // {
+        //     climberControl.stop();
+        // }
         
         climberControl.manualControl(operatorController.getStick(ButtonMap.XboxLEFTSTICKY), operatorController.getStick(ButtonMap.XboxRIGHTSTICKY));
         
-        /* 
+    }
+
+    private void manipulatorControl()
+    {
         if (operatorController.getButton(ButtonMap.XboxRIGHTBumper))
         {
-            intake.intaking();
-        }
-        
-        if (operatorController.getButton(ButtonMap.XboxLEFTBumper))
+            intake.manualIntakePower(0.3);
+            intake.manualPivotPower(0);
+            ramp.setRamp(0);
+        }else if (operatorController.getButton(ButtonMap.XboxLEFTBumper))
         {
-            intake.reverseIntaking();
-        } */
-
-        //RampForwardButtonPressed();
+            intake.manualIntakePower(-0.3);
+            intake.manualPivotPower(0);
+            ramp.setRamp(0.3);
+        } else if(operatorController.getButton(ButtonMap.XboxY))
+        {
+            intake.manualIntakePower(0);
+            intake.manualPivotPower(0.1);
+            ramp.setRamp(0);
+        }else if (operatorController.getButton(ButtonMap.XboxA)){
+            intake.manualIntakePower(0);
+            intake.manualPivotPower(-0.1);
+            ramp.setRamp(0);
+        } else
+        {
+            intake.manualIntakePower(0);
+            intake.manualPivotPower(0);
+            ramp.setRamp(0);
+        }    
     }
-
-    /* 
-    public void RampForwardButtonPressed()
-    {
-        rampspeed = operatorController.getStick(ButtonMap.XboxRIGHTTrigger);
-        if (Math.abs(rampspeed) > THRESHOLD)
-        {
-            System.out.println("ramp speed: " + rampspeed);
-        }
-    }
-    
-    public void RampBackwardButtonPressed()
-    {
-        rampspeed = -operatorController.getStick(ButtonMap.XboxLEFTTrigger);
-        if (Math.abs(rampspeed) > THRESHOLD) //TODO: add Threshold here
-        {
-            System.out.println("ramp speed: " + rampspeed);
-        }
-    } */
 
     public void start()
     {

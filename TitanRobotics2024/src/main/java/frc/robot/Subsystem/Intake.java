@@ -1,6 +1,7 @@
 package frc.robot.Subsystem;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Data.PortMap;
 
 public class Intake implements Subsystem
@@ -13,6 +14,7 @@ public class Intake implements Subsystem
   private double rotationPower;
   private double intakePower;
   private double currentDistance;
+  private double pivotPower;
 
   private ModifiedEncoders encoder;
   private ModifiedMotors pivotMotor;
@@ -23,12 +25,14 @@ public class Intake implements Subsystem
   private double kd;
 
   private static Intake instance = null;
+  
+  private String intakeMode = "manual";
 
   public static Intake getInstance()
   {
     if (instance == null)
     {
-      instance = new Intake(new ModifiedEncoders(000, "E4TEncoder"),
+      instance = new Intake(new ModifiedEncoders(PortMap.INTAKEPIVOTENCODER_A.portNumber, PortMap.INTAKEPIVOTENCODER_B.portNumber, "E4TEncoder"),
               new ModifiedMotors(PortMap.INTAKEMOTORPIVOT.portNumber, "CANSparkMax"),
               new ModifiedMotors(PortMap.INTAKEMOTORROLLER.portNumber, "CANSparkMax"));
     }
@@ -41,7 +45,6 @@ public class Intake implements Subsystem
     this.pivotMotor = Pmotor;
     this.rollerMotor = Rmotor;
     positionPID = new PIDController(kp, ki, kd);
-
   }
 
   public void up()
@@ -54,9 +57,14 @@ public class Intake implements Subsystem
     this.IntakeState = "down";
   }
 
-  public void stop()
+  public void stopIntake()
   {
-    this.IntakeState = "stop";
+    this.IntakeState = "stopIntake";
+  }
+
+  public void stopIntakeArm()
+  {
+    this.IntakeState = "stopIntakeArm";
   }
 
   public void intaking()
@@ -66,7 +74,18 @@ public class Intake implements Subsystem
 
   public void reverseIntaking()
   {
-    this.IntakeState = "reverseIntake";
+    this.IntakeState = "reverseIntaking";
+  }
+
+  public void manualUp(){
+    this.IntakeState = "manualUp";
+  }
+
+  public void manualDown(){
+    this.IntakeState = "manualDown";
+  }
+  public void setIntakeMode(){
+    this.IntakeState = "manualStop";
   }
 
   private void IntakeStateProcess()
@@ -78,22 +97,34 @@ public class Intake implements Subsystem
         rotationtarget = Intake_Up_Position;
         intakePower = 0.0;
         break;
-      case "down":// used if when intake is lowered, but rollers have not been
-                  // activated
+      case "down":// used if when intake is lowered, but rollers have not been activated
         rotationtarget = Intake_Bottom_Position;
         intakePower = 0.0;
         break;
-      case "stop":// rotation of the intake arm set to zero, no movement
-        rotationPower = 0.0;
+      case "stopIntake":// rotation of the intake arm set to zero, no movement
         intakePower = 0.0;
+        pivotPower = 0;
+        break;
+      case "stopIntakeArm":
+        pivotPower = 0.0;
         break;
       case "Intaking":// rollers spin to move the note in
-        rotationtarget = Intake_Bottom_Position;
-        intakePower = 1;
+      //rotationtarget = Intake_Bottom_Position;
+        intakePower = 0.3;
+        pivotPower = 0;
         break;
       case "reverseIntaking":// rollers spin to push the note out into the ramp
-        rotationtarget = Intake_Up_Position;
-        intakePower = -1;
+        //rotationtarget = Intake_Up_Position;
+        intakePower = -0.3;
+        pivotPower = 0;
+        break;
+      case "manualUp":
+        pivotPower = 0.1;
+        intakePower = 0;
+        break;
+      case "manualDown":
+        intakePower = 0;
+        pivotPower = -0.1;
         break;
       default:
         break;
@@ -102,15 +133,33 @@ public class Intake implements Subsystem
     {
       rotationPower = positionPID.calculate(currentDistance, rotationtarget);
     }
-
   }
-  // TODO: log
+
+  public void log()
+  {
+    SmartDashboard.putNumber("currentDistance",currentDistance);
+    SmartDashboard.putString(IntakeState, IntakeState);
+  }
+
+  public void manualPivotPower(double power)
+  {
+    pivotPower = power;
+  }
+
+  public void manualIntakePower(double power)
+  {
+    intakePower = power;
+  }
 
   public void update()
   {
     currentDistance = encoder.getDistance();
-    IntakeStateProcess();
-    pivotMotor.set(rotationPower);
+    if (intakeMode == "auto")
+    {
+      IntakeStateProcess();
+    }
+    
+    pivotMotor.set(pivotPower);
     rollerMotor.set(intakePower);
   }
 }
