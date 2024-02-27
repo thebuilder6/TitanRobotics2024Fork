@@ -16,23 +16,27 @@ public class IntegratedMotors implements Subsystem
     private CANSparkMax sparkMax;
 
     // PID coefficients
-    private double kP = 0.1; 
+    private double kP = 0.1;
     private double kI = 1e-4;
-    private double kD = 1; 
-    private double kIz = 0; 
-    private double kFF = 0; 
-    private double kMaxOutput = 1; 
+    private double kD = 1;
+    private double kIz = 0;
+    private double kFF = 0;
+    private double kMaxOutput = 1;
     private double kMinOutput = -1;
     private String name;
 
-    public IntegratedMotors(int motorPort, String encoderType, int encoderPort_A, int encoderPort_B) {
+    public IntegratedMotors(int motorPort, String encoderType, int encoderPort_A, int encoderPort_B)
+    {
         if (motorPort < 0)
         {
             System.err.println("Motor not assigned " + motorPort);
             sparkMax = null;
             return;
-        } else {
-            try{
+        }
+        else
+        {
+            try
+            {
                 sparkMax = new CANSparkMax(motorPort, CANSparkMax.MotorType.kBrushless);
             }
             catch (Exception e)
@@ -41,11 +45,15 @@ public class IntegratedMotors implements Subsystem
                 sparkMax = null;
             }
         }
-        if (encoderType == null || encoderPort_A < 0 || encoderPort_B < 0) {
+        if (encoderType == null || encoderPort_A < 0 || encoderPort_B < 0)
+        {
             System.err.println("Encoder not Assigned " + encoderPort_A + " " + encoderPort_B);
             externalEncoder = null;
-        } else {
-            try{
+        }
+        else
+        {
+            try
+            {
                 externalEncoder = new Encoder(encoderPort_A, encoderPort_B);
             }
             catch (Exception e)
@@ -53,9 +61,10 @@ public class IntegratedMotors implements Subsystem
                 System.err.println("Error: Encoder Not Activated " + encoderPort_A + " " + encoderPort_B);
                 externalEncoder = null;
             }
-        }     
-        try{
-            relativeEncoder =  sparkMax.getEncoder();
+        }
+        try
+        {
+            relativeEncoder = sparkMax.getEncoder();
         }
         catch (Exception e)
         {
@@ -65,8 +74,8 @@ public class IntegratedMotors implements Subsystem
         sparkMax.restoreFactoryDefaults();
 
         pidController = sparkMax.getPIDController();
-        
-        if(encoderType == "External")
+
+        if (encoderType == "External")
         {
             //pidController.setFeedbackDevice();
             //TODO: Figure this out later
@@ -77,7 +86,7 @@ public class IntegratedMotors implements Subsystem
         }
 
         name = "Integrated Motor " + motorPort + " ";
-        
+
         pidController.setP(kP);
         pidController.setI(kI);
         pidController.setD(kD);
@@ -98,7 +107,7 @@ public class IntegratedMotors implements Subsystem
         SmartDashboard.putNumber(name + "Min Output", kMinOutput);
         SmartDashboard.putNumber(name + "Set Rotations", 0);
     }
-    
+
     public void set(double speed)
     {
         if (sparkMax != null)
@@ -110,6 +119,7 @@ public class IntegratedMotors implements Subsystem
             System.err.println("Error: Motor Not Set");
         }
     }
+
     public void pidSettings(double p, double i, double d, double iz, double ff, double max, double min)
     {
         pidController.setP(p);
@@ -131,10 +141,10 @@ public class IntegratedMotors implements Subsystem
             System.err.println("Error: Motor Not Set");
         }
     }
-    
+
     public void tune()
     {
-            // read PID coefficients from SmartDashboard
+        // read PID coefficients from SmartDashboard
         double p = SmartDashboard.getNumber(name + "P Gain", 0);
         double i = SmartDashboard.getNumber(name + "I Gain", 0);
         double d = SmartDashboard.getNumber(name + "D Gain", 0);
@@ -145,14 +155,36 @@ public class IntegratedMotors implements Subsystem
         double rotations = SmartDashboard.getNumber(name + "Set Rotations", 0);
 
         // if PID coefficients on SmartDashboard have changed, write new values to controller
-        if((p != kP)) { pidController.setP(p); kP = p; }
-        if((i != kI)) { pidController.setI(i); kI = i; }
-        if((d != kD)) { pidController.setD(d); kD = d; }
-        if((iz != kIz)) { pidController.setIZone(iz); kIz = iz; }
-        if((ff != kFF)) { pidController.setFF(ff); kFF = ff; }
-        if((max != kMaxOutput) || (min != kMinOutput)) { 
-            pidController.setOutputRange(min, max); 
-            kMinOutput = min; kMaxOutput = max; 
+        if ((p != kP))
+        {
+            pidController.setP(p);
+            kP = p;
+        }
+        if ((i != kI))
+        {
+            pidController.setI(i);
+            kI = i;
+        }
+        if ((d != kD))
+        {
+            pidController.setD(d);
+            kD = d;
+        }
+        if ((iz != kIz))
+        {
+            pidController.setIZone(iz);
+            kIz = iz;
+        }
+        if ((ff != kFF))
+        {
+            pidController.setFF(ff);
+            kFF = ff;
+        }
+        if ((max != kMaxOutput) || (min != kMinOutput))
+        {
+            pidController.setOutputRange(min, max);
+            kMinOutput = min;
+            kMaxOutput = max;
         }
 
         pidController.setReference(rotations, CANSparkMax.ControlType.kPosition);
@@ -163,15 +195,28 @@ public class IntegratedMotors implements Subsystem
 
     public double getPosition()
     {
-       return relativeEncoder.getPosition();
+        return relativeEncoder.getPosition();
     }
 
     public double getVelocity()
     {
         return relativeEncoder.getVelocity();
     }
+
+    public void set(double power)
+    {
+        if (sparkMax != null)
+        {
+            sparkMax.set(power);
+        }
+        else
+        {
+            System.err.println("Error: Motor Not Set");
+        }
+    }
+
     public void update()
     {
-        
+
     }
 }
