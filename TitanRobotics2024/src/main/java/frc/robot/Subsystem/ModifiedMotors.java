@@ -1,8 +1,8 @@
 package frc.robot.Subsystem;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.revrobotics.CANSparkMax;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX; //https://maven.ctr-electronics.com/release/com/ctre/phoenix/Phoenix5-frc2024-latest.json
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX; 
+import com.revrobotics.CANSparkMax; //https://software-metadata.revrobotics.com/REVLib-2024.json
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -73,6 +73,11 @@ public class ModifiedMotors implements Subsystem
                 break;
         }
         
+    }
+
+    public void setVoltage(double voltage)
+    {
+        motor.setVoltage(voltage);
     }
 
     private MotorController initializePWMVictorSPX(int portNumber)

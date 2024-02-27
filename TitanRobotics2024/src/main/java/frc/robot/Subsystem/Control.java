@@ -1,5 +1,6 @@
 package frc.robot.Subsystem;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import frc.robot.Data.ButtonMap;
 
 public class Control implements Subsystem
@@ -20,6 +21,12 @@ public class Control implements Subsystem
     private double turn;
 
     private double THRESHOLD = 0.05;
+    private final SlewRateLimiter m_speedLimiter = new SlewRateLimiter(3);
+    private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
+
+    private double kMaxSpeed = 3.0;
+
+    private double kMaxRotSpeed = 2 * Math.PI;
 
     public static Control getInstance()
     {
@@ -46,7 +53,8 @@ public class Control implements Subsystem
     {
         forward = -driverController.getStick(ButtonMap.XboxLEFTSTICKY) * (Math.abs(driverController.getStick(ButtonMap.XboxLEFTSTICKY)));
         turn = -driverController.getStick(ButtonMap.XboxRIGHTSTICKX);
-
+        forward = m_speedLimiter.calculate(forward)* kMaxSpeed;
+        turn = m_rotLimiter.calculate(turn)* kMaxRotSpeed;
         //limelightControl();
 
         driveBase.drive(forward, turn);
