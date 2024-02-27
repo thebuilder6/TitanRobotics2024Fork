@@ -77,8 +77,7 @@ public class IntegratedMotors implements Subsystem
 
         if (encoderType == "External")
         {
-            //pidController.setFeedbackDevice();
-            //TODO: Figure this out later
+            //
         }
         else
         {
@@ -203,16 +202,26 @@ public class IntegratedMotors implements Subsystem
         return relativeEncoder.getVelocity();
     }
 
-    public void set(double power)
+    public double get()
     {
-        if (sparkMax != null)
-        {
-            sparkMax.set(power);
-        }
-        else
-        {
-            System.err.println("Error: Motor Not Set");
-        }
+        return sparkMax.get();
+    }
+
+    public double getRate()
+    {
+        return relativeEncoder.getVelocity();
+    }
+
+    public void setConversionFactor(double factor)
+    {
+        relativeEncoder.setPositionConversionFactor(factor);
+        relativeEncoder.setVelocityConversionFactor(factor);
+
+    }
+
+    public void setVoltage(double voltage)
+    {
+        sparkMax.setVoltage(voltage);
     }
 
     public void update()

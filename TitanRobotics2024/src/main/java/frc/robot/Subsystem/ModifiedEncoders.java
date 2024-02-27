@@ -90,26 +90,37 @@ public class ModifiedEncoders implements Subsystem
             return null;
         }
     }
+
     public double getRate()
     {
-       if(encoder != null) {
-        return encoder.getRate();// * ratio;
-       }
-       else{
-        return 0;
-       }
+        if (encoder != null)
+        {
+            return encoder.getRate();// * ratio;
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     public double getDistance()
     {
-        if(encoder != null) 
+        if (encoder != null)
         {
             return encoder.getDistance();
         }
-       else
-       {
+        else
+        {
             return 0;
-       }
+        }
+    }
+
+    public void setDistancePerPulse(double distancePerPulse)
+    {
+        if (encoder != null)
+        {
+            encoder.setDistancePerPulse(distancePerPulse);
+        }
     }
 
     @Override

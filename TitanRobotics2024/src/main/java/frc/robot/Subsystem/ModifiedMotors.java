@@ -1,7 +1,7 @@
 package frc.robot.Subsystem;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX; //https://maven.ctr-electronics.com/release/com/ctre/phoenix/Phoenix5-frc2024-latest.json
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX; 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax; //https://software-metadata.revrobotics.com/REVLib-2024.json
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
@@ -54,25 +54,26 @@ public class ModifiedMotors implements Subsystem
 
     public ModifiedMotors(int portNumber, int followerPortNumber, String motorType, boolean inverted)
     {
-         if (portNumber < 0)
+        if (portNumber < 0)
         {
             System.err.println("Motor not activated " + portNumber);
             motor = null;
             return;
         }
-        switch (motorType) {
+        switch (motorType)
+        {
             case "CANTalonDual":
                 motor = initializeDualCANTalon(portNumber, followerPortNumber, inverted);
                 break;
             case "CANVictorSPXDual":
                 motor = initializeDualCANVictorSPX(portNumber, followerPortNumber, inverted);
                 break;
-        
+
             default:
                 motor = null;
                 break;
         }
-        
+
     }
 
     public void setVoltage(double voltage)
@@ -124,7 +125,6 @@ public class ModifiedMotors implements Subsystem
         motor.setInverted(true);
     }
 
-
     private MotorController initializeCANTalon(int portNumber)
     {
         try
@@ -142,14 +142,13 @@ public class ModifiedMotors implements Subsystem
     {
         try
         {
-           WPI_TalonSRX leaderMotor = new WPI_TalonSRX(portNumber);
-           WPI_TalonSRX followerMotor = new WPI_TalonSRX(followerPortNumber);
-           followerMotor.follow(leaderMotor);
-           leaderMotor.setInverted(inverted);
-           followerMotor.setInverted(inverted);
+            WPI_TalonSRX leaderMotor = new WPI_TalonSRX(portNumber);
+            WPI_TalonSRX followerMotor = new WPI_TalonSRX(followerPortNumber);
+            followerMotor.follow(leaderMotor);
+            leaderMotor.setInverted(inverted);
+            followerMotor.setInverted(inverted);
 
-
-           return leaderMotor;
+            return leaderMotor;
         }
         catch (Exception e)
         {
@@ -160,15 +159,15 @@ public class ModifiedMotors implements Subsystem
 
     private MotorController initializeDualCANVictorSPX(int portNumber, int followerPortNumber, boolean inverted)
     {
-         try
+        try
         {
-           WPI_VictorSPX leaderMotor = new WPI_VictorSPX(portNumber);
-           WPI_VictorSPX followerMotor = new WPI_VictorSPX(followerPortNumber);
-          
-           followerMotor.follow(leaderMotor);
-           leaderMotor.setInverted(inverted);
-           followerMotor.setInverted(inverted);
-           return leaderMotor;
+            WPI_VictorSPX leaderMotor = new WPI_VictorSPX(portNumber);
+            WPI_VictorSPX followerMotor = new WPI_VictorSPX(followerPortNumber);
+
+            followerMotor.follow(leaderMotor);
+            leaderMotor.setInverted(inverted);
+            followerMotor.setInverted(inverted);
+            return leaderMotor;
         }
         catch (Exception e)
         {
@@ -189,6 +188,17 @@ public class ModifiedMotors implements Subsystem
         }
     }
 
+    public double get()
+    {
+        if (this.motor != null)
+        {
+            return this.motor.get();
+        }
+        else
+        {
+            return 0;
+        }
+    }
 
     @Override
     public void update()
