@@ -5,6 +5,9 @@
         "header": {
           "open": false
         }
+      },
+      "window": {
+        "visible": true
       }
     },
     "Other Devices": {
@@ -60,11 +63,11 @@
       }
     },
     "RoboRIO": {
-      "6V Rail": {
-        "open": false
-      },
       "RoboRIO Input": {
-        "open": false
+        "open": true
+      },
+      "window": {
+        "visible": true
       }
     }
   },
@@ -75,12 +78,6 @@
     }
   },
   "NetworkTables": {
-    "Persistent Values": {
-      "open": false
-    },
-    "Retained Values": {
-      "open": false
-    },
     "transitory": {
       "FMSInfo": {
         "open": true
@@ -97,6 +94,50 @@
     }
   },
   "NetworkTables Info": {
+    "Clients": {
+      "open": true
+    },
+    "Connections": {
+      "open": true
+    },
+    "Server": {
+      "Publishers": {
+        "open": true
+      },
+      "Subscribers": {
+        "open": true
+      },
+      "open": true
+    },
     "visible": true
+  },
+  "Plot": {
+    "Plot <0>": {
+      "plots": [
+        {
+          "backgroundColor": [
+            0.0,
+            0.0,
+            0.0,
+            0.8500000238418579
+          ],
+          "height": 338,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "Joystick[0] Button[1]"
+            }
+          ]
+        }
+      ],
+      "window": {
+        "visible": false
+      }
+    }
   }
 }

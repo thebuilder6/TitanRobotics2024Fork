@@ -78,7 +78,14 @@ public class ModifiedMotors implements Subsystem
 
     public void setVoltage(double voltage)
     {
-        motor.setVoltage(voltage);
+        if (motor != null)
+        {
+            motor.setVoltage(voltage);
+        }
+        else
+        {
+            SmartDashboard.putNumber("Error: Motor Not Set", this.portNumber);
+        }
     }
 
     private MotorController initializePWMVictorSPX(int portNumber)
@@ -122,6 +129,10 @@ public class ModifiedMotors implements Subsystem
 
     public void invert()
     {
+        if (motor == null)
+        {
+            return;
+        }
         motor.setInverted(true);
     }
 
