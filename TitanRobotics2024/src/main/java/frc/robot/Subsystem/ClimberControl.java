@@ -6,8 +6,10 @@ public class ClimberControl implements Subsystem
     private static ClimberSubsystem leftClimber;
     private static ClimberSubsystem rightClimber;
 
-    public static ClimberControl getInstance() {
-        if (instance == null) {
+    public static ClimberControl getInstance()
+    {
+        if (instance == null)
+        {
             instance = new ClimberControl();
         }
         return instance;
@@ -52,20 +54,25 @@ public class ClimberControl implements Subsystem
     public void manualControl(double leftSpeed, double rightSpeed)
     {
         double threshold = 0.15;
-        
-        if (Math.abs(leftSpeed) >= threshold){
+
+        if (Math.abs(leftSpeed) >= threshold)
+        {
             leftClimber.manualControl(leftSpeed);
-        } else if( leftClimber.getClimberState().equals("MANUAL")){
+        }
+        else if (leftClimber.getClimberState().equals("MANUAL"))
+        {
             leftClimber.hold();
         }
-        
-        if ((Math.abs(rightSpeed) >= threshold)){
+
+        if ((Math.abs(rightSpeed) >= threshold))
+        {
             rightClimber.manualControl(rightSpeed);
-        } else if( rightClimber.getClimberState().equals("MANUAL")){
+        }
+        else if (rightClimber.getClimberState().equals("MANUAL"))
+        {
             rightClimber.hold();
         }
     }
-
 
     public void update()
     {

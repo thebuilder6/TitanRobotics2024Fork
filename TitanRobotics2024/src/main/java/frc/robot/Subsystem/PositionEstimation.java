@@ -10,11 +10,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class PositionEstimation implements Subsystem
 {
     private DriveBase driveBase;
-    private Gyro gyro;
+    private IMU gyro;
 
     private static final double WHEEL_BASE_WIDTH = 27.0;
     DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(WHEEL_BASE_WIDTH));
-    
+
     private final DifferentialDrivePoseEstimator positionEstimator;
 
     private static PositionEstimation instance = null;
@@ -30,7 +30,7 @@ public class PositionEstimation implements Subsystem
 
     private PositionEstimation()
     {
-        gyro = Gyro.getInstance();
+        gyro = IMU.getInstance();
         driveBase = DriveBase.getInstance();
         positionEstimator = new DifferentialDrivePoseEstimator(kinematics, gyro.getRotation2d(),
                         driveBase.getLeftEncoderDistance(), driveBase.getRightEncoderDistance(), new Pose2d(),
@@ -55,9 +55,9 @@ public class PositionEstimation implements Subsystem
 
     public double getDistance()
     {
-        return ((driveBase.getLeftEncoderDistance() - driveBase.getRightEncoderDistance())/2);
+        return ((driveBase.getLeftEncoderDistance() - driveBase.getRightEncoderDistance()) / 2);
     }
-    
+
     public void resetPose()
     {
         positionEstimator.resetPosition(gyro.getRotation2d(), driveBase.getLeftEncoderDistance(), driveBase.getRightEncoderDistance(), getPose());

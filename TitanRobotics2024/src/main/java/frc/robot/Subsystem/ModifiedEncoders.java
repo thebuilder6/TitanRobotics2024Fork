@@ -115,14 +115,6 @@ public class ModifiedEncoders implements Subsystem
         }
     }
 
-    public void setDistancePerPulse(double distancePerPulse)
-    {
-        if (encoder != null)
-        {
-            encoder.setDistancePerPulse(distancePerPulse);
-        }
-    }
-
     @Override
     public void update()
     {

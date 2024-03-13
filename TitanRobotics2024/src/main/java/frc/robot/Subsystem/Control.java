@@ -1,7 +1,6 @@
 package frc.robot.Subsystem;
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Data.ButtonMap;
 
 public class Control implements Subsystem
@@ -9,26 +8,20 @@ public class Control implements Subsystem
     private static Control instance = null;
 
     private DriveBase driveBase;
-    private DriverController driverController;
-    private OperatorController operatorController;
+    private Controller driverController;
+    private Controller operatorController;
     private Targeting targeting;
     private ClimberControl climberControl;
     private Intake intake;
     private Limelight limelight;
     private Ramp ramp;
-    private IntakePivot intakePivot;
 
     private double rampspeed;
     private double forward;
     private double turn;
+    private boolean inversion;
 
     private double THRESHOLD = 0.05;
-    private final SlewRateLimiter m_speedLimiter = new SlewRateLimiter(3);
-    private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
-
-    private double kMaxSpeed = 3.0;
-
-    private double kMaxRotSpeed = 2 * Math.PI;
 
     public static Control getInstance()
     {
@@ -41,43 +34,57 @@ public class Control implements Subsystem
 
     public Control()
     {
+        SubsystemManager.registerSubsystem(this);
         driveBase = DriveBase.getInstance();
-        driverController = DriverController.getInstance();
-        operatorController = OperatorController.getInstance();
+        driverController = Controller.getDriverInstance();
+        operatorController = Controller.getOperatorInstance();
         targeting = Targeting.getInstance();
         limelight = Limelight.getInstance();
         intake = Intake.getInstance();
         climberControl = ClimberControl.getInstance();
         ramp = Ramp.getInstance();
-        intakePivot = IntakePivot.getInstance();
+        inversion = false;
+    }
+
+    public String getName()
+    {
+        return "Control";
+    }
+
+    public boolean go()
+    {
+        return true;
     }
 
     public void teleopControl()
     {
         forward = -driverController.getStick(ButtonMap.XboxLEFTSTICKY) * (Math.abs(driverController.getStick(ButtonMap.XboxLEFTSTICKY)));
         turn = -driverController.getStick(ButtonMap.XboxRIGHTSTICKX);
-        forward = m_speedLimiter.calculate(forward) * kMaxSpeed;
-        turn = m_rotLimiter.calculate(turn) * kMaxRotSpeed;
-        //limelightControl();
 
-        //driveBase.drive(forward, turn);
+        if (driverController.getDebounceButton(ButtonMap.XboxB))
+        {
+            inversion = !inversion;
+        }
+        if (inversion)
+        {
+            forward = -forward;
+        }
 
-        //climberControl();
-        // manipulatorControl();
+        driveBase.drive(forward, turn);
 
-        intakePivot.setDisabled(false);
-        intakePivotSysID();
+        climberControl();
+        manipulatorControl();
     }
 
     private void limelightControl()
     {
-        targeting.setAlliance("blue"); // Change depending on alliance
+        targeting.setAlliance("blue"); // Change depending on alliance.
                                        // for upcoming match.
                                        // Failure to change this will
                                        // cause you to target the
                                        // wrong AprilTags when using
                                        // lock on buttons.
-        if (driverController.debounceSTART())
+        if (driverController.getDebounceButton(ButtonMap.XboxSTART))
         {
             System.out.println("pressed");
             if (limelight.getPipeline() == 0)
@@ -96,21 +103,18 @@ public class Control implements Subsystem
             {
                 targeting.setTarget("Amp");
                 turn = targeting.aprilTaglockOn();
-                System.out.println("Locking on to Amp");
             }
 
             if (driverController.getButton(ButtonMap.XboxA))
             {
                 targeting.setTarget("Source");
                 turn = targeting.aprilTaglockOn();
-                System.out.println("Locking on to Source");
             }
 
             if (driverController.getButton(ButtonMap.XboxB))
             {
                 targeting.setTarget("Stage");
                 turn = targeting.aprilTaglockOn();
-                System.out.println("Locking on to Stage");
             }
 
             else
@@ -124,63 +128,46 @@ public class Control implements Subsystem
             if (driverController.getButton(ButtonMap.XboxY))
             {
                 turn = targeting.otherLockOn();
-                System.out.println("Locking On to Note");
             }
-        }
-
-        if (driverController.getButton(ButtonMap.XboxRIGHTBumper))
-        {
-            forward = targeting.follow();
-            turn = targeting.otherLockOn();
         }
     }
 
     private void climberControl()
     {
 
-        // if (operatorController.getButton(ButtonMap.XboxY))
-        // {
-        //     climberControl.top();
-        // }
-
-        // if (operatorController.getButton(ButtonMap.XboxX))
-        // {
-        //     climberControl.bottom();
-        // }
-
-        // if (operatorController.getButton(ButtonMap.XboxB))
-        // {
-        //     climberControl.stop();
-        // }
+        if (operatorController.getButton(ButtonMap.XboxB))
+        {
+            climberControl.stop();
+        }
 
         climberControl.manualControl(operatorController.getStick(ButtonMap.XboxLEFTSTICKY), operatorController.getStick(ButtonMap.XboxRIGHTSTICKY));
 
     }
 
-    private void manipulatorControl()
+    private void manipulatorControl()//please do not mess with the buttons, they are set to operator's preference.
     {
-        if (operatorController.getButton(ButtonMap.XboxRIGHTBumper))
+        if (operatorController.getButton(ButtonMap.XboxRIGHTBumper))//right bumper = intake in, pushes ramp back towards the intake
         {
             intake.manualIntakePower(0.3);
             intake.manualPivotPower(0);
-            ramp.setRamp(0);
+            ramp.setRamp(-0.3);
         }
-        else if (operatorController.getButton(ButtonMap.XboxLEFTBumper))
+        else if (operatorController.getButton(ButtonMap.XboxLEFTBumper))//left bumper = intake out, pushes ramp towards the scoring side
         {
             intake.manualIntakePower(-0.3);
             intake.manualPivotPower(0);
             ramp.setRamp(0.3);
         }
-        else if (operatorController.getButton(ButtonMap.XboxY))
+        else if (operatorController.getButton(ButtonMap.XboxY))//button y = pivot arm up
         {
             intake.manualIntakePower(0);
-            intake.manualPivotPower(0.1);
+            intake.manualPivotPower(0.175);
             ramp.setRamp(0);
         }
-        else if (operatorController.getButton(ButtonMap.XboxA))
+        else if (operatorController.getButton(ButtonMap.XboxA))//button a = pivot arm down
         {
             intake.manualIntakePower(0);
-            intake.manualPivotPower(-0.1);
+            intake.manualPivotPower(-0.175);
             ramp.setRamp(0);
         }
         else
@@ -191,29 +178,14 @@ public class Control implements Subsystem
         }
     }
 
-    public void intakePivotSysID()
-    {
-        if (driverController.getButton(ButtonMap.XboxA))
-        {
-            intakePivot.sysIdQuasistatic(SysIdRoutine.Direction.kForward);
-        }
-        if (driverController.getButton(ButtonMap.XboxB))
-        {
-            intakePivot.sysIdQuasistatic(SysIdRoutine.Direction.kReverse);
-        }
-        if (driverController.getButton(ButtonMap.XboxX))
-        {
-            intakePivot.sysIdDynamic(SysIdRoutine.Direction.kForward);
-        }
-        if (driverController.getButton(ButtonMap.XboxY))
-        {
-            intakePivot.sysIdDynamic(SysIdRoutine.Direction.kReverse);
-        }
-    }
-
     public void start()
     {
 
+    }
+
+    public void log()
+    {
+        SmartDashboard.putBoolean("inversion", inversion);
     }
 
     public void update()
