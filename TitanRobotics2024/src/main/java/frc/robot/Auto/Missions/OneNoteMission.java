@@ -6,12 +6,11 @@ import frc.robot.Auto.Actions.ParallelAction;
 import frc.robot.Auto.Actions.TurnDegreesAction;
 import frc.robot.Auto.Actions.SeriesAction;
 
-public class OneNoteMission extends MissionBase 
+public class OneNoteMission extends MissionBase
 {
     @Override
-    protected void routine() throws AutoMissionEndedException 
+    protected void routine() throws AutoMissionEndedException
     {
-        // TODO Auto-generated method stub
-        runAction(new DriveForTimeAction(3, 0.5));// may be milliseconds
+        runAction(new DriveForTimeAction(3, 0.5));
     }
 }

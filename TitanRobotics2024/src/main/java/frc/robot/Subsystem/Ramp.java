@@ -5,12 +5,12 @@ import frc.robot.Data.PortMap;
 
 public class Ramp
 {
-  public ModifiedMotors rampLeftMotor;
-  public ModifiedMotors rampRightMotor;
-  public ModifiedMotors outtakeMotor;
-  public double outtakePower;
-  public double rampMotorLeftpower;
-  public double rampMotorRightpower;
+  private ModifiedMotors rampLeftMotor;
+  private ModifiedMotors rampRightMotor;
+  private ModifiedMotors outtakeMotor;
+  private double outtakePower;
+  private double rampMotorLeftpower;
+  private double rampMotorRightpower;
   private static Ramp instance = null;
 
   public static Ramp getInstance()
@@ -22,7 +22,7 @@ public class Ramp
     return instance;
   }
 
-  public void setRampMotors()
+  public Ramp()
   {
     this.rampLeftMotor = new ModifiedMotors(PortMap.RAMPLEFTMOTOR.portNumber, "CANSparkMax");
     this.rampRightMotor = new ModifiedMotors(PortMap.RAMPRIGHTMOTOR.portNumber, "CANSparkMax");
@@ -31,9 +31,20 @@ public class Ramp
 
   public void setRamp(double rampforward)
   {
-    this.rampMotorLeftpower = (rampforward);
-    this.rampMotorRightpower = (-rampforward);
+    this.rampMotorLeftpower = (-rampforward);
+    this.rampMotorRightpower = (rampforward);
     this.outtakePower = (rampforward);
+  }
+
+  public void setRampLeftAndRight(double rampforward)
+  {
+    this.rampMotorLeftpower = (-rampforward);
+    this.rampMotorRightpower = (rampforward);
+  }
+
+  public void setOuttake(double outtakePower)
+  {
+    this.outtakePower = outtakePower;
   }
 
   public void log()
@@ -59,3 +70,4 @@ public class Ramp
     }
   }
 }
+

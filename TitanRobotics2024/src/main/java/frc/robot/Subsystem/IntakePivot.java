@@ -1,76 +1,50 @@
 package frc.robot.Subsystem;
 
-import static edu.wpi.first.units.MutableMeasure.mutable;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
-import edu.wpi.first.units.Angle;
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.MutableMeasure;
-import edu.wpi.first.units.Velocity;
-import edu.wpi.first.units.Voltage;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Data.PortMap;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 //https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/profiled-pidcontroller.html
 
 //https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/tuning-vertical-arm.html
 
-public class IntakePivot extends SubsystemBase
+public class IntakePivot implements Subsystem
 {
-
-    private ModifiedMotors motor;
-    private ModifiedEncoders encoder;
     private static IntakePivot instance = null;
-    private ProfiledPIDController profiledPIDcontroller;
+    private ModifiedMotors pivotMotor;
+    private ModifiedEncoders pivotEncoder;
+    private ProfiledPIDController pivotProfiledPIDController;
+    private double kP = 0.1;
+    private double kI = 0.0;
+    private double kD = 0.0;
+    private double kSVolts = 0.0;
+    private double kGVolts = 0.0;
+    private double kVVolts = 0.0;
+    private double kAVolts = 0.0;
+    private double currentPosition;
 
-    private double kSVolts = 0;
-    private double kGVolts = 0;
-    private double kVVoltSecondPerDegree = 0;
-    private double kAVoltSecondSquaredPerDegree = 0;
-    private double kMaxVelocityDegreePerSecond = 0;
-    private double kMaxAccelerationDegreePerSecSquared = 0;
-    private double kP = 1;
-    private double kI = 0;
-    private double kD = 0;
-    private double kEncoderDistancePerPulse = 360 / 2048;
-    //kEncoderDistancePerPulse = 2.0 * Math.PI / kEncoderPPR;
+    private double upGoal = 386.0;
+    private double downGoal = 205.0;
 
-    private double goal;
-    private double kArmOffsetRads;
+    private double maxVelocity;
+    private double maxAcceleration;
+    private double encoderDistancePerRotation = 360.0;
+    private double encoderPositionOffset = 0.0;
     private boolean disabled;
+    private double goal;
+    private double startingOffset = 0.0;
 
-    private final ArmFeedforward m_feedforward = new ArmFeedforward(
-                    kSVolts, kGVolts,
-                    kVVoltSecondPerDegree, kAVoltSecondSquaredPerDegree);
+    public String intakeState = "disabled";
 
+    private final ArmFeedforward feedforward = new ArmFeedforward(kSVolts, kGVolts, kVVolts, kAVolts);
     // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
     private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
     // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
     private final MutableMeasure<Angle> m_angle = mutable(Degrees.of(0));
     // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
     private final MutableMeasure<Velocity<Angle>> m_velocity = mutable(DegreesPerSecond.of(0));
-
-    private IntakePivot()
-    {
-        motor = new ModifiedMotors(PortMap.INTAKEMOTORPIVOT.portNumber, "CANSparkMax");
-        encoder = new ModifiedEncoders(PortMap.INTAKEPIVOTENCODER_A.portNumber, PortMap.INTAKEPIVOTENCODER_B.portNumber, "QuadratureEncoder");
-        profiledPIDcontroller = new ProfiledPIDController(kP, kI, kD, new TrapezoidProfile.Constraints(
-                        kMaxVelocityDegreePerSecond,
-                        kMaxAccelerationDegreePerSecSquared));
-        encoder.setDistancePerPulse(kEncoderDistancePerPulse);
-        disabled = true;
-    }
 
     public static IntakePivot getInstance()
     {
@@ -81,43 +55,84 @@ public class IntakePivot extends SubsystemBase
         return instance;
     }
 
-    public void setPosition(double position)
+    public IntakePivot()
     {
-        goal = position + kArmOffsetRads;
+        pivotMotor = new ModifiedMotors(PortMap.INTAKEMOTORPIVOT.portNumber, "CANSparkMax");
+        pivotEncoder = new ModifiedEncoders(PortMap.INTAKEPIVOTENCODER.portNumber, encoderPositionOffset, "DutyCycleEncoder");
+        if (pivotMotor == null)
+        {
+            System.out.println("Pivot null");
+        }
+        pivotProfiledPIDController = new ProfiledPIDController(kP, kI, kD, new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration));
+
+        pivotEncoder.setDistancePerRotation(encoderDistancePerRotation);
+        disabled = true;
+    }
+
+    private void control()
+    {
+        pivotProfiledPIDController.setGoal(goal + startingOffset);
+
+        pivotMotor.setVoltage(0.3 * (pivotProfiledPIDController.calculate(currentPosition) + feedforward.calculate(pivotProfiledPIDController.getSetpoint().position, pivotProfiledPIDController.getSetpoint().velocity)));
+    }
+
+    public void disabled()
+    {
+        this.intakeState = "disabled";
+    }
+
+    public void up()
+    {
+        this.intakeState = "up";
+    }
+
+    public void down()
+    {
+        this.intakeState = "down";
+    }
+
+    private void IntakeStateProcess()
+    {
+        switch (intakeState)
+        {
+            case "disabled":
+                setDisabled(true);
+                break;
+            case "up":
+                goal = upGoal;
+                setDisabled(false);
+                break;
+            case "down":
+                goal = downGoal;
+                setDisabled(false);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void setTargetPosition(double position)
+    {
+
+        goal = position;
+        this.disabled = false;
     }
 
     public void setDisabled(boolean disabled)
     {
         this.disabled = disabled;
     }
-
-    private void control()
+    
+    public void manualPivotPower(double power)
     {
-        profiledPIDcontroller.setGoal(goal + kArmOffsetRads);
-        motor.setVoltage(profiledPIDcontroller.calculate(encoder.getDistance()) + m_feedforward.calculate(profiledPIDcontroller.getSetpoint().position, profiledPIDcontroller.getSetpoint().velocity));
+        pivotMotor.setVoltage(power);
     }
-
-    public void update()
-    {
-        if (motor != null)
-        {
-            if (disabled)
-            {
-                motor.setVoltage(0);
-            }
-            else
-            {
-                control();
-            }
-        }
-    }
-
+    
     public void log()
     {
-        SmartDashboard.getNumber("IntakePivotGoal", goal);
-        SmartDashboard.getNumber("IntakePivotPosition", encoder.getDistance());
-        SmartDashboard.getNumber("IntakePivotVelocity", encoder.getRate());
+        SmartDashboard.putNumber("pivotAbsoluteEncoder", currentPosition);
     }
+
 
     // Create a new SysId routine for characterizing the drive.
     private final SysIdRoutine m_sysIdRoutine = new SysIdRoutine(
@@ -156,6 +171,29 @@ public class IntakePivot extends SubsystemBase
     public Command sysIdDynamic(SysIdRoutine.Direction direction)
     {
         return m_sysIdRoutine.dynamic(direction);
+    }
+
+}
+
+    public void update()
+    {
+        if (pivotEncoder != null)
+        {
+            currentPosition = pivotEncoder.getAbsolutePosition();
+            if (currentPosition <= 120)
+            {
+                currentPosition += 360;
+            }
+            IntakeStateProcess();
+        }
+        if (!disabled)
+        {
+            control();
+        }
+        else
+        {
+            pivotMotor.setVoltage(0.0);
+        }
     }
 
 }

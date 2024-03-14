@@ -2,57 +2,46 @@ package frc.robot.Auto.Actions;
 
 import frc.robot.Subsystem.DriveBase;
 import frc.robot.Subsystem.Targeting;
-import frc.robot.Subsystem.Limelight;
+import frc.robot.Subsystem.LimelightFront;
 
-public class LockOnAction implements Actions 
+public class FrontLockOnAction implements Actions
 {
     private Targeting targeting;
     private DriveBase driveBase;
-    private Limelight limelight;
-    
+    private LimelightFront limelight;
+    private String target;
+
     double neededArea;
 
     /**
      * Run code once when the action is started, for setup
      */
-    public LockOnAction(String target, String alliance) 
+    public FrontLockOnAction(String target)
     {
         targeting = Targeting.getInstance();
-        limelight = Limelight.getInstance();
+        this.target = target;
+        limelight = LimelightFront.getInstance();
         driveBase = DriveBase.getInstance();
 
-        if(alliance == "blue")
-        {
-            targeting.setAlliance("blue");
-        }
-        
-        if(alliance == "red")
-        {
-            targeting.setAlliance("red");
-        }
-
-        switch(target)
+        switch (target)
         {
             case "Amp":
             {
                 limelight.setPipeline(0);
-                targeting.setTarget("Amp");
             }
-            break;
-            
+                break;
+
             case "Source":
             {
                 limelight.setPipeline(0);
-                targeting.setTarget("Source");
             }
-            break;
+                break;
 
             case "Stage":
             {
                 limelight.setPipeline(0);
-                targeting.setTarget("Stage");
             }
-            break;
+                break;
 
             case "Note":
             {
@@ -63,13 +52,13 @@ public class LockOnAction implements Actions
     }
 
     @Override
-    public void start() 
+    public void start()
     {
-        if(limelight.getPipeline() == 0)
+        if (limelight.getPipeline() == 0)
         {
             neededArea = 5;
         }
-        if(limelight.getPipeline() == 1)
+        if (limelight.getPipeline() == 1)
         {
             neededArea = 3.1;
         }
@@ -81,47 +70,39 @@ public class LockOnAction implements Actions
      * method
      */
     @Override
-    public void update() 
+    public void update()
     {
-        if(limelight.getPipeline() == 0)
+        if (limelight.getPipeline() == 0)
         {
-            driveBase.drive(targeting.follow(), targeting.aprilTaglockOn());
+            driveBase.drive(targeting.follow(), targeting.frontAprilTagLockOn(target));
         }
-        if(limelight.getPipeline() == 1)
+        if (limelight.getPipeline() == 1)
         {
-            driveBase.drive(targeting.follow(), targeting.otherLockOn());
+            driveBase.drive(targeting.follow(), targeting.noteLockOn());
             System.out.println(limelight.getArea());
         }
     }
 
     /**
-     * Returns whether or not the code has finished execution. When implementing
+     * Returns whether or not the code has finished executaprilTagLockOnementing
      * this interface, this method is used by
      * the runAction method every cycle to know when to stop running the action
      *
      * @return boolean
      */
     @Override
-    public boolean isFinished() 
+    public boolean isFinished()
     {
-        if(limelight.getArea() >= neededArea && limelight.getX() == 0)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return (limelight.getArea() >= neededArea && limelight.getX() == 0);
     }
 
     /**
      * Run code once when the action finishes, usually for clean up
      */
     @Override
-    public void done() 
+    public void done()
     {
         driveBase.drive(0, 0);
     }
 
 }
-
