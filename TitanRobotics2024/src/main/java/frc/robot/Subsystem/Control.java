@@ -12,8 +12,8 @@ public class Control implements Subsystem
     private boolean useSlew = false;
     private SlewRateLimiter limiter = new SlewRateLimiter(20);
     private DriveBase driveBase;
-    private DriverController driverController;
-    private OperatorController operatorController;
+    private Controller driverController;
+    private Controller operatorController;
     private Targeting targeting;
     private ClimberControl climberControl;
     private Intake intake;
@@ -28,12 +28,6 @@ public class Control implements Subsystem
     private IntakePivot intakePivot;
 
     private double THRESHOLD = 0.05;
-    private final SlewRateLimiter m_speedLimiter = new SlewRateLimiter(3);
-    private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
-
-    private double kMaxSpeed = 3.0;
-
-    private double kMaxRotSpeed = 2 * Math.PI;
 
     public static Control getInstance()
     {
@@ -46,9 +40,10 @@ public class Control implements Subsystem
 
     public Control()
     {
+        SubsystemManager.registerSubsystem(this);
         driveBase = DriveBase.getInstance();
-        driverController = DriverController.getInstance();
-        operatorController = OperatorController.getInstance();
+        driverController = Controller.getDriverInstance();
+        operatorController = Controller.getOperatorInstance();
         targeting = Targeting.getInstance();
         intake = Intake.getInstance();
         intakePivot = IntakePivot.getInstance();
@@ -60,14 +55,21 @@ public class Control implements Subsystem
         limelightFront = LimelightFront.getInstance();
     }
 
+    public String getName()
+    {
+        return "Control";
+    }
+
+    public boolean go()
+    {
+        return true;
+    }
+
     public void teleopControl()
     {
         forward = -driverController.getStick(ButtonMap.XboxLEFTSTICKY);
 
         turn = -driverController.getStick(ButtonMap.XboxRIGHTSTICKX);
-        forward = m_speedLimiter.calculate(forward) * kMaxSpeed;
-        turn = m_rotLimiter.calculate(turn) * kMaxRotSpeed;
-        //limelightControl();
 
 
         //Driver does not want this code on forward drive
@@ -78,14 +80,12 @@ public class Control implements Subsystem
         if (useSlew) {
             turn = limiter.calculate(turn);
         }
-        if (driverController.debounceB()){
+        if (driverController.getDebounceButton(ButtonMap.XboxB))
+        {
             inversion = !inversion;
-            SmartDashboard.putBoolean("inversion", inversion);
         }
-
         if (inversion)
         {
-
             forward = -forward;
         }
 
@@ -111,11 +111,10 @@ public class Control implements Subsystem
 
         //driveBase.drive(forward, turn);
 
-        //climberControl();
-        // manipulatorControl();
+        driveBase.drive(forward, turn);
 
-        intakePivot.setDisabled(false);
-        intakePivotSysID();
+        climberControl();
+        manipulatorControl();
     }
 
 
@@ -207,6 +206,11 @@ public class Control implements Subsystem
     public void start()
     {
         
+    }
+
+    public void log()
+    {
+        SmartDashboard.putBoolean("inversion", inversion);
     }
 
     public void update()

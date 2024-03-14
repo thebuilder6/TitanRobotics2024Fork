@@ -5,10 +5,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class Gyro implements Subsystem
+public class IMU implements Subsystem
 {
 
-  private static Gyro instance = null;
+  private static IMU instance = null;
   AHRS ahrs;
   SmartDashboardSubsystem smartDashboardSubsystem;
 
@@ -19,16 +19,16 @@ public class Gyro implements Subsystem
   double yawAngleDegrees = 0;
   double angleDegrees = 0;
 
-  public static Gyro getInstance()
+  public static IMU getInstance()
   {
     if (instance == null)
     {
-      instance = new Gyro();
+      instance = new IMU();
     }
     return instance;
   }
 
-  public Gyro()
+  public IMU()
   {
     smartDashboardSubsystem = SmartDashboardSubsystem.getInstance();
     try
@@ -42,8 +42,22 @@ public class Gyro implements Subsystem
       smartDashboardSubsystem.error(
               "Could not get ahrs; did you drop metal shavings in the RoboRio again?");
     }
-
+    SubsystemManager.registerSubsystem(this);
     ahrs.reset();
+  }
+
+  public String getName()
+  {
+    return "IMU";
+  }
+
+  public boolean go()
+  {
+    if (ahrs.isConnected())
+    {
+      return true;
+    }
+    return false;
   }
 
   public void log()

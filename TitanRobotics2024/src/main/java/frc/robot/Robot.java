@@ -8,12 +8,13 @@ import java.util.Optional;
 import edu.wpi.first.wpilibj.TimedRobot;
 
 import frc.robot.Subsystem.SmartDashboardSubsystem;
+import frc.robot.Subsystem.SubsystemManager;
 import frc.robot.Subsystem.Control;
 import frc.robot.Subsystem.ClimberControl;
 import frc.robot.Subsystem.ClimberSubsystem;
 import frc.robot.Subsystem.DriveBase;
-import frc.robot.Subsystem.DriverController;
-import frc.robot.Subsystem.OperatorController;
+import frc.robot.Subsystem.IMU;
+import frc.robot.Subsystem.Controller;
 import frc.robot.Subsystem.Intake;
 import frc.robot.Subsystem.IntakeControl;
 import frc.robot.Subsystem.LimelightFront;
@@ -46,8 +47,6 @@ public class Robot extends TimedRobot
   private static Control control;
   private static Targeting targeting;
   private static DriveBase driveBase;
-  private static DriverController driverController;
-  private static OperatorController operatorController;
   private static ClimberControl climberControl;
   private static ClimberSubsystem climberRight;
   private static ClimberSubsystem climberLeft;
@@ -70,13 +69,14 @@ public class Robot extends TimedRobot
   {
     autoMissionChooser.updateMissionCreator();
 
-    control = Control.getInstance();
+    Controller.getOperatorInstance();
+    Controller.getDriverInstance();
+    IMU.getInstance();
+    Control.getInstance();
     climberControl = ClimberControl.getInstance();
     climberLeft = ClimberSubsystem.getLeftInstance();
     climberRight = ClimberSubsystem.getRightInstance();
     driveBase = DriveBase.getInstance();
-    driverController = DriverController.getInstance();
-    operatorController = OperatorController.getInstance();
     targeting = Targeting.getInstance();
     positionEstimation = PositionEstimation.getInstance();
     smartDashboardSubsystem = SmartDashboardSubsystem.getInstance();
@@ -101,8 +101,6 @@ public class Robot extends TimedRobot
   {
     autoMissionChooser.outputToSmartDashboard();
 
-    driverController.update();
-    operatorController.update();
     targeting.update();
     climberControl.update();
     climberLeft.update();
@@ -116,7 +114,8 @@ public class Robot extends TimedRobot
     intakePivot.update();
     intakeControl.update();
     ramp.update();
-
+    SubsystemManager.updateAllSubsystems();
+    SubsystemManager.logAllSubsystems();
     smartDashboardSubsystem.update();
 
   }
@@ -170,7 +169,6 @@ public class Robot extends TimedRobot
   {
     autoMissionChooser.outputToSmartDashboard();
     autoMissionChooser.updateMissionCreator();
-    
     Optional<MissionBase> autoMission = autoMissionChooser.getAutoMission();
     if (autoMission.isPresent() && autoMission.get() != autoMissionExecutor.getAutoMission())
     {

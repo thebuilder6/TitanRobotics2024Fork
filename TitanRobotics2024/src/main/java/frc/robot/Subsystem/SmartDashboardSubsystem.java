@@ -8,7 +8,7 @@ public class SmartDashboardSubsystem implements Subsystem
 {
     private static SmartDashboardSubsystem instance = null;
 
-    private Gyro gyro;
+    private IMU gyro;
     private DriveBase driveBase;
     private Targeting targeting;
     private ClimberControl climberControl;
@@ -45,7 +45,7 @@ public class SmartDashboardSubsystem implements Subsystem
         }
         else
         {
-            gyro = Gyro.getInstance();
+            gyro = IMU.getInstance();
             driveBase = DriveBase.getInstance();
             intake = Intake.getInstance();
             intakePivot = IntakePivot.getInstance();

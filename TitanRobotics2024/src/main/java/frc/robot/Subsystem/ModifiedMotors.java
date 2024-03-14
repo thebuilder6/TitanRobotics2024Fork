@@ -117,10 +117,6 @@ public class ModifiedMotors implements Subsystem
 
     public void invert()
     {
-        if (motor == null)
-        {
-            return;
-        }
         motor.setInverted(true);
     }
 
@@ -192,18 +188,7 @@ public class ModifiedMotors implements Subsystem
         {
             SmartDashboard.putNumber("Error: Motor Not Set", this.portNumber);
         }
-    }
 
-    public double get()
-    {
-        if (this.motor != null)
-        {
-            return this.motor.get();
-        }
-        else
-        {
-            return 0;
-        }
     }
 
     @Override
