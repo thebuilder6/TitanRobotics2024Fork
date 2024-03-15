@@ -47,9 +47,6 @@ public class Robot extends TimedRobot
   private static Control control;
   private static Targeting targeting;
   private static DriveBase driveBase;
-  private static ClimberControl climberControl;
-  private static ClimberSubsystem climberRight;
-  private static ClimberSubsystem climberLeft;
   private static LimelightFront limelightFront;
   private static LimelightBack limelightBack;
   private static PositionEstimation positionEstimation;
@@ -73,9 +70,9 @@ public class Robot extends TimedRobot
     Controller.getDriverInstance();
     IMU.getInstance();
     Control.getInstance();
-    climberControl = ClimberControl.getInstance();
-    climberLeft = ClimberSubsystem.getLeftInstance();
-    climberRight = ClimberSubsystem.getRightInstance();
+    ClimberControl.getInstance();
+    ClimberSubsystem.getLeftInstance();
+    ClimberSubsystem.getRightInstance();
     driveBase = DriveBase.getInstance();
     targeting = Targeting.getInstance();
     positionEstimation = PositionEstimation.getInstance();
@@ -102,9 +99,6 @@ public class Robot extends TimedRobot
     autoMissionChooser.outputToSmartDashboard();
 
     targeting.update();
-    climberControl.update();
-    climberLeft.update();
-    climberRight.update();
     control.update();
     driveBase.update();
     positionEstimation.update();

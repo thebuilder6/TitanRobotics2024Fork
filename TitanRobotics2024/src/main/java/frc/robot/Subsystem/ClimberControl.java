@@ -19,7 +19,26 @@ public class ClimberControl implements Subsystem
     {
         leftClimber = ClimberSubsystem.getLeftInstance();
         rightClimber = ClimberSubsystem.getRightInstance();
+        SubsystemManager.registerSubsystem(this);
     }
+    
+    public String getName()
+    {
+        return "ClimberControl";
+    }
+
+    public boolean go()
+    {
+        if (leftClimber.go() && rightClimber.go())
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
 
     public void top()
     {

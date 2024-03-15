@@ -42,7 +42,7 @@ public class ClimberSubsystem implements Subsystem
     // Private constructor for initializing motors and encoders
     private ClimberSubsystem(ModifiedMotors motor, ModifiedEncoders encoder, String name, DigitalInput LimitSwitch)
     {
-
+        SubsystemManager.registerSubsystem(this);
         this.motor = motor;
         this.encoder = encoder;
         this.name = name;
@@ -77,6 +77,22 @@ public class ClimberSubsystem implements Subsystem
         return rightInstance;
     }
 
+    public String getName()
+    {
+        return name;
+    }
+
+    public boolean go()
+    {
+        if(motor != null) 
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
     // Set manual control for climber velocity
     public void manualControl(double velocity)
     {
@@ -139,8 +155,6 @@ public class ClimberSubsystem implements Subsystem
 
     public void log()
     {
-        SmartDashboard.putNumber(name + ": Climber Distance", currentDistance);
-        SmartDashboard.putNumber(name + ": Climber Velocity", currentVelocity);
         SmartDashboard.putNumber(name + ": Climber Power", climberPower);
         SmartDashboard.putString(name + ": Climber State", climberState);
         SmartDashboard.putBoolean(name + "Limit Switch", LimitSwitch.get());

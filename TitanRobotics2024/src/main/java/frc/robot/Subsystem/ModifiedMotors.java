@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class ModifiedMotors implements Subsystem
+public class ModifiedMotors
 {
 
     private int portNumber;
@@ -189,6 +189,15 @@ public class ModifiedMotors implements Subsystem
             SmartDashboard.putNumber("Error: Motor Not Set", this.portNumber);
         }
 
+    }
+
+    public boolean isConnected()
+    {
+        if (motor != null)
+        {
+            return true;
+        }
+        return false;
     }
 
     @Override
